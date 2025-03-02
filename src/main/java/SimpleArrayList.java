@@ -1,16 +1,22 @@
 import java.util.Arrays;
 
-public class SimpleArrayList implements SimpleList {
+public class SimpleArrayList<T> implements SimpleList<T> {
 
     private final static int DEFAULT_CAPACITY = 10; // 기본 용량
-    private String[] strings;
+    private T[] elements;
     private int size; // 실제 저장된 요소 개수
 
     public SimpleArrayList(int capacity) {
         if (capacity < 0) {
             throw new IllegalArgumentException("Capacity cannot be negative");
         }
-        this.strings = new String[capacity];
+
+        /**
+         * T[]처럼 보이지만, 내부적으로는 Object[]가 생성됨.
+         * 제네릭을 통해 T[]로 사용할 수 있도록 했을 뿐, 실제로는 Object[]임.
+         * T가 Object의 하위 타입인지 여부와는 상관없이 Object[]로 동작함.
+        */
+        this.elements = (T[]) new Object[capacity]; // 실질적으로 Object[]에 불과하기에 경고 발생
         this.size = 0;
     }
 
@@ -18,53 +24,61 @@ public class SimpleArrayList implements SimpleList {
         this(DEFAULT_CAPACITY);
     }
 
+    public T[] forceGetInnerArrayForTest() {
+        return elements;
+    }
+
+    public void forceSetSizeForTest(int size) {
+        this.size = size;
+    }
+
     @Override
-    public boolean add(String value) {
+    public boolean add(T value) {
         add(size, value);
         return true;
     }
 
     @Override
-    public void add(int index, String value) {
+    public void add(int index, T value) {
         validateAddableIndex(index);
         ensureCapacity();
         for (int i = size; i > index; i--) {
-            strings[i] = strings[i - 1]; // 오른쪽으로 시프트
+            elements[i] = elements[i - 1]; // 오른쪽으로 시프트
         }
-        strings[index] = value; // 덮어쓰기
+        elements[index] = value; // 덮어쓰기
         size++;
     }
 
     private void ensureCapacity() {
-        if (size >= strings.length) {
-            strings = Arrays.copyOf(strings, strings.length * 2);
+        if (size >= elements.length) {
+            elements = Arrays.copyOf(elements, elements.length * 2);
         }
     }
 
     @Override
-    public String set(int index, String value) {
+    public T set(int index, T value) {
         validateAccessibleIndex(index);
-        String oldValue = strings[index];
-        strings[index] = value;
+        T oldValue = elements[index];
+        elements[index] = value;
         return oldValue;
     }
 
     @Override
-    public String get(int index) {
+    public T get(int index) {
         validateAccessibleIndex(index);
-        return strings[index];
+        return elements[index];
     }
 
     @Override
-    public boolean contains(String value) {
+    public boolean contains(T value) {
         return indexOf(value) != -1;
     }
 
     @Override
-    public int indexOf(String value) {
+    public int indexOf(T value) {
         if (value == null) {
             for (int i = 0; i < size; i++) {
-                if (strings[i] == null) {
+                if (elements[i] == null) {
                     return i;
                 }
             }
@@ -72,7 +86,7 @@ public class SimpleArrayList implements SimpleList {
         }
 
         for (int i = 0; i < size; i++) {
-            if (value.equals(strings[i])) {
+            if (value.equals(elements[i])) {
                 return i;
             }
         }
@@ -90,7 +104,7 @@ public class SimpleArrayList implements SimpleList {
     }
 
     @Override
-    public boolean remove(String value) {
+    public boolean remove(T value) {
         int index = indexOf(value);
         if (index == -1) {
             return false;
@@ -100,13 +114,13 @@ public class SimpleArrayList implements SimpleList {
     }
 
     @Override
-    public String remove(int index) {
+    public T remove(int index) {
         validateAccessibleIndex(index);
-        String removed = strings[index];
+        T removed = elements[index];
         for (int i = index; i < size - 1; i++) {
-            strings[i] = strings[i + 1]; // 왼쪽으로 시프트
+            elements[i] = elements[i + 1]; // 왼쪽으로 시프트
         }
-        strings[size - 1] = null;
+        elements[size - 1] = null;
         size--;
         return removed;
     }
@@ -114,10 +128,10 @@ public class SimpleArrayList implements SimpleList {
     @Override
     public void clear() {
         for (int i = 0; i < size; i++) {
-            strings[i] = null;
+            elements[i] = null;
         }
         size = 0;
-        this.strings = new String[DEFAULT_CAPACITY];
+        this.elements = (T[]) new Object[DEFAULT_CAPACITY];
     }
 
     private void validateAddableIndex(int index) {

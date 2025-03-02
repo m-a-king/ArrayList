@@ -1,24 +1,23 @@
-public interface SimpleList {
+public interface SimpleList<T> {
+    boolean add(T value);
 
-    boolean add(String value);
+    void add(int index, T value);
 
-    void add(int index, String value);
+    T set(int index, T value);
 
-    String set(int index, String value);
+    T get(int index);
 
-    String get(int index);
+    boolean contains(T value);
 
-    boolean contains(String value);
-
-    int indexOf(String value);
+    int indexOf(T value);
 
     int size();
 
     boolean isEmpty();
 
-    boolean remove(String value);
+    boolean remove(T value);
 
-    String remove(int index);
+    T remove(int index);
 
     void clear();
 }
