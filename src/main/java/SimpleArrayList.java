@@ -13,11 +13,16 @@ public class SimpleArrayList<T> implements SimpleList<T> {
 
         /**
          * T[]처럼 보이지만, 내부적으로는 Object[]가 생성됨.
-         * 제네릭을 통해 T[]로 사용할 수 있도록 했을 뿐, 실제로는 Object[]임.
-         * T가 Object의 하위 타입인지 여부와는 상관없이 Object[]로 동작함.
+         * 제네릭을 통해 T[]로 표현했을 뿐, 런타임에서 Object[]임.
         */
         this.elements = (T[]) new Object[capacity]; // 실질적으로 Object[]에 불과하기에 경고 발생
         this.size = 0;
+    }
+
+    @SafeVarargs
+    public SimpleArrayList(T... elements) {
+        this.elements = elements;
+        this.size = elements.length;
     }
 
     public SimpleArrayList() {

@@ -221,4 +221,77 @@ class SimpleArrayListTest {
             System.out.println("value = " + value);
         }).isInstanceOf(ClassCastException.class);
     }
+
+    @Test
+    @DisplayName("varArgs을 받아 SimpleList로 반환할 수 있다")
+    void canReturnSimpleListByArray() {
+        // given
+        final String[] arrays = {"first", "second"};
+
+        // when
+        final SimpleList<String> values = SimpleList.<String>fromArrayToList(arrays);
+
+        // then
+        assertThat(values.get(0)).isEqualTo("first");
+        assertThat(values.get(1)).isEqualTo("second");
+    }
+
+    @Test
+    @DisplayName("타입이 같은 숫자를 받아 SimpleList로 변경하고, 합할 수 있다")
+    void canSumBySimpleList() {
+        // given
+        // when
+        final SimpleList<Double> doubleValues = new SimpleArrayList<Double>(0.5, 0.7);
+        final SimpleList<Integer> intValues = new SimpleArrayList<Integer>(1, 2);
+
+        // then
+        assertThat(SimpleList.sum(doubleValues)).isEqualTo(1.2);
+        assertThat(SimpleList.sum(intValues)).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("숫자 타입의 SimpleList를 받아 음수를 제외하고 반환할 수 있다")
+    void canFilterNegativeNumber() {
+        // given
+        // when
+        final SimpleList<Double> doubleValues = new SimpleArrayList<Double>(-0.1, 0.5, 0.7);
+        final SimpleList<Integer> intValues = new SimpleArrayList<Integer>(-10, 1, 2);
+
+        final SimpleList<Double> filteredDoubleValues = SimpleList.filterNegative(doubleValues);
+        final SimpleList<Integer> filteredIntValues = SimpleList.filterNegative(intValues);
+
+        // then
+        assertAll(() -> {
+            for (int i = 0; i < filteredDoubleValues.size(); i++) {
+                assertThat(filteredDoubleValues.get(i) < 0).isTrue();
+            }
+
+            for (int i = 0; i < filteredIntValues.size(); i++) {
+                assertThat(filteredIntValues.get(i) < 0).isTrue();
+            }
+        });
+    }
+
+    /**
+     * 제네릭의 변성 특징인 공변, 반공변 특성에 대해 학습한다.
+     * PECS(Producer Extends Consumer Super) 개념에 대해 학습한다.
+     */
+    @Test
+    @DisplayName("리스트의 값을 다른 리스트로 복사할 수 있다. 같은 타입이 아닌 상속 관계의 타입도 복사가 가능")
+    void canCopyList() {
+        // given
+        final var laserPrinter = new LaserPrinter();
+
+        final SimpleList<Printer> printers = new SimpleArrayList<>();
+        final SimpleList<LaserPrinter> laserPrinters = new SimpleArrayList<>(laserPrinter);
+
+        // when
+        SimpleList.copy(laserPrinters, printers);
+
+        // then
+        assertThat(printers.get(0) == laserPrinter).isTrue();
+    }
+
+    class Printer { }
+    class LaserPrinter extends Printer { }
 }
